@@ -61,4 +61,8 @@ defenses:
         health: 300
 
 tech:
-    
+    armor:
+        initial_level: 0
+    gun:
+        initial_level: 0
+        
