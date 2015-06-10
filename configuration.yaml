@@ -1,0 +1,64 @@
+# this file is a configuration sample
+ressources:
+    steel:
+        value : 1000
+        delta : 10
+    gasoil:
+        value : 100
+        delta : 1
+    experience:
+        value : 0
+        delta : 0
+
+units:
+    m2:
+        price: [100,10,0]
+        speed: 50
+        percing: 20
+        range: [0,800]
+        damage: 10
+        armor: 20
+        health: 30
+        consumption : 5
+        initial_number: 1 # set that start player number of unit
+
+    m3:
+        price: [200,15,0]
+        speed: 45
+        percing: 25
+        range: [0,900]
+        damage: 15
+        armor: 30
+        health: 35
+        consumption : 6
+
+    m4:
+        price: [400,50,0]
+        speed: 40
+        percing: 40
+        range: [0,900]
+        damage: 35
+        armor: 70
+        health: 60
+        consumption : 10
+
+defenses:
+    37mm:
+        price: [100,10,0]
+        percing: 20
+        range: [0,800]
+        damage: 10
+        armor: 20
+        health: 30
+        initial_number: 1 # set that start player number of unit
+
+    88mm:
+        price: [800,200,0]
+        percing: 200
+        range: [200,1500]
+        damage: 100
+        armor: 50
+        health: 300
+
+tech:
+    
