@@ -22,8 +22,18 @@ in-game :
         - get defenses available
         - get tech levels
         - get events (attacking/defending, building)
+        - get messages list
+        - get one message
 
     set :
+        - build unit/defense
+        - upgrade tech
+        - spy a player (and get the report)
+        - attack a player
+        - write one message
+
+    check if the values are correct. It allows the user to see if one value is
+    unconsistency:
         - build unit/defense
         - upgrade tech
         - spy a player (and get the report)
