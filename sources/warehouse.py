@@ -7,7 +7,7 @@ class Warehouse:
 
     def _init_values(self, contained_type, configuration):
         for name in configuration[contained_type].keys():
-            self._contained[name] = int(configuration[contained_type][name].get("initial_number", 0))
+            self._contained[name] = int(configuration[contained_type][name].get("init", 0))
 
     def check_min(self, request):
         # from the request parameters, which is a dict (name:quantity), it
@@ -63,7 +63,7 @@ class Warehouse:
 
 class TestWarehouse(unittest.TestCase):
     def setUp(self):
-        self.conf = {"unit":{"toto":{"initial_number":2}}}
+        self.conf = {"unit":{"toto":{"init":2}}}
 
     def test_init(self):
         warehouse = Warehouse("unit", self.conf)
