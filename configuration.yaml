@@ -20,7 +20,7 @@ units:
         armor: 20
         health: 30
         consumption : 5
-        initial_number: 1 # set that start player number of unit
+        init: 1 # set that start player number of unit
 
     m3:
         price: [200,15,0]
@@ -50,7 +50,7 @@ defenses:
         damage: 10
         armor: 20
         health: 30
-        initial_number: 1 # set that start player number of unit
+        init: 1 # set that start player number of unit
 
     88mm:
         price: [800,200,0]
@@ -62,7 +62,6 @@ defenses:
 
 tech:
     armor:
-        initial_level: 0
+        init: 0
     gun:
-        initial_level: 0
-        
+        init: 0

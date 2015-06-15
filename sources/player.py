@@ -1,35 +1,71 @@
 import unittest
 
 from ressources import Ressources
+from warehouse import Warehouse
 
 class Player:
+    # This class contains all player data.
+    # it is just a wrapper around warehouse class.
     def __init__(self, configuration):
-        self._ressources = Ressources(configuration):
+        self._ressources = Ressources(configuration)
 
         # build a dict with all keys
         # contains all units available
-        self._units = dict()
-        self._init_units(configuration)
+        self._units = Warehouse("units", configuration)
 
         #contains all defenses available
-        self._defenses = dict()
-        self._init_defenses(configuration)
+        self._defenses = Warehouse("defenses", configuration)
 
         # define tech available
-        self._tech = dict()
-        self._init_tech()
+        self._tech = Warehouse("tech", configuration)
 
-        # all event from and to the player
-        self._events = dict()
+        # mail box
+        # @TODO
+        self._mail_box = []
 
-    def _init_units(self, configuration):
-        for name in configuration["units"].keys():
-            self._units[name] = configuration["units"].get("initial_number", 0)
+    def check_min_ressources(self, values):
+        # from a list a ressource values, return True if ressources are available
+        self._ressources.is_available(values)
 
-    def _init_defenses(self, configuration):
-        for name in configuration["defenses"].keys():
-            self._defenses[name] = configuration["defenses"].get("initial_number", 0)
+    def check_min_units(self, units):
+        # check a min quantity of units
+        return self._units.check_min(units)
 
-    def _init_tech(self, configuration):
-        for name in configuration["tech"].keys():
-            self._init_tech[name] = configuration["tech"].get("initial_level", 0)
+    def check_min_tech(self, tech):
+        # check a min tech level
+        return  self._tech.check_min(tech)
+
+    def get_units(self):
+        return self._units.get()
+
+    def get_defenses(self):
+        return self._defenses.get()
+
+    def get_tech(self):
+        return self._tech.get()
+
+    def add_units(self, units):
+        self._units.add(units)
+
+    def add_defenses(self, defenses):
+        self._defenses.add(defenses)
+
+    def inc_tech(self, tech_name):
+        self._tech.add({tech_name:1})
+
+    def sub_units(self, units):
+        self._units.sub(units)
+
+    def sub_defenses(self, defenses):
+        self._defenses.sub(defenses)
+
+class TestPlayer(unittest.TestCase):
+    def setUp(self):
+        self.configuration = {"tech":{"armor":{}}, "units":{"m3":{}}, "defenses":{"bunker":{}}, "ressources":
+            {"steel":{"value" : 1000, "delta" : 10}}}
+
+    def test_init(self):
+        player = Player(self.configuration)
+
+if __name__ == "__main__":
+    unittest.main()
