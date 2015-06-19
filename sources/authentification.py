@@ -1,6 +1,7 @@
+import unittest
+import unittest.mock as mock
 from collections import namedtuple
 from uuid import uuid4
-import unittest
 
 Player = namedtuple("Player", ["player_id", "email", "password_hashed", "nick"])
 
@@ -15,6 +16,9 @@ class PlayerAuthentification:
 
         # nick to player_id
         self._nicks = dict()
+
+        # player_to_are used to prevent player id theft
+        self._player_tokens = dict()
 
     def create(self, email, password_hashed, nick):
         """
@@ -36,7 +40,7 @@ class PlayerAuthentification:
 
     def login(self, email, password_hashed):
         """
-        This function login the player and return player_id if every thing is ok
+        This function login the player and return player_token if every thing is ok
         """
 
         if email not in self._emails:
@@ -49,7 +53,10 @@ class PlayerAuthentification:
         if player.password_hashed != password_hashed:
             raise Exception("bad password !")
 
-        return player_id
+        player_token = uuid4()
+        self._player_tokens[player_token] = player_id
+
+        return player_token
 
     def nick_to_player_id(self, nick):
         if nick not in self._nicks:
@@ -57,51 +64,56 @@ class PlayerAuthentification:
 
         return self._nicks[nick]
 
-
-class TestPlayerAuthentifiction(unittest.TestCase):
-
-    def test_create_success(self):
-        player_authentifiation = PlayerAuthentification()
-        toto_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        self.assertNotEqual(toto_id, None)
-
-    def test_create_failed_already_exist_email(self):
-        player_authentifiation = PlayerAuthentification()
-        player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        self.assertRaises(Exception, player_authentifiation.create, ("toto@foo.bar", "ABCDEF01233", "yyy_toto_yyy"))
-
-    def test_create_failed_already_exist_nick(self):
-        player_authentifiation = PlayerAuthentification()
-        player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        self.assertRaises(Exception, player_authentifiation.create, ("toto@foo.com", "ABCDEF01233", "xxx_toto_xxx"))
-
-    def test_login_success(self):
-        player_authentifiation = PlayerAuthentification()
-        creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        login_id = player_authentifiation.login("toto@foo.bar", "ABCDEF01234")
-        self.assertEqual(creation_id, login_id)
-
-    def test_login_fail_bad_email(self):
-        player_authentifiation = PlayerAuthentification()
-        creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        self.assertRaises(Exception, player_authentifiation.login, ("toto@foo.bare", "ABCDEF01234"))
-
-    def test_login_fail_bad_password(self):
-        player_authentifiation = PlayerAuthentification()
-        creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        self.assertRaises(Exception, player_authentifiation.login, ("toto@foo.bar", "ABCDEF01233"))
-
-    def test_nick_to_player_id_success(self):
-        player_authentifiation = PlayerAuthentification()
-        creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        request_id = player_authentifiation.nick_to_player_id("xxx_toto_xxx")
-        self.assertEqual(creation_id, request_id)
-
-    def test_nick_to_player_id_fail(self):
-        player_authentifiation = PlayerAuthentification()
-        creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
-        self.assertRaises(Exception, player_authentifiation.nick_to_player_id, ("yyy_toto_xxx"))
-
+    def player_token_to_player_id(self, player_token):
+        return self._player_tokens[player_token]
 
 if __name__ == "__main__":
-    unittest.main()
+
+    class TestPlayerAuthentifiction(unittest.TestCase):
+
+        def test_create_success(self):
+            player_authentifiation = PlayerAuthentification()
+            toto_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            self.assertNotEqual(toto_id, None)
+
+        def test_create_failed_already_exist_email(self):
+            player_authentifiation = PlayerAuthentification()
+            player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            self.assertRaises(Exception, player_authentifiation.create, ("toto@foo.bar", "ABCDEF01233", "yyy_toto_yyy"))
+
+        def test_create_failed_already_exist_nick(self):
+            player_authentifiation = PlayerAuthentification()
+            player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            self.assertRaises(Exception, player_authentifiation.create, ("toto@foo.com", "ABCDEF01233", "xxx_toto_xxx"))
+
+        def test_login_success(self):
+            player_authentifiation = PlayerAuthentification()
+            creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            player_token = player_authentifiation.login("toto@foo.bar", "ABCDEF01234")
+            login_id = player_authentifiation.player_token_to_player_id(player_token)
+            self.assertEqual(creation_id, login_id)
+
+        def test_login_fail_bad_email(self):
+            player_authentifiation = PlayerAuthentification()
+            creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            self.assertRaises(Exception, player_authentifiation.login, ("toto@foo.bare", "ABCDEF01234"))
+
+        def test_login_fail_bad_password(self):
+            player_authentifiation = PlayerAuthentification()
+            creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            self.assertRaises(Exception, player_authentifiation.login, ("toto@foo.bar", "ABCDEF01233"))
+
+        def test_nick_to_player_id_success(self):
+            player_authentifiation = PlayerAuthentification()
+            creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            request_id = player_authentifiation.nick_to_player_id("xxx_toto_xxx")
+            self.assertEqual(creation_id, request_id)
+
+        def test_nick_to_player_id_fail(self):
+            player_authentifiation = PlayerAuthentification()
+            creation_id = player_authentifiation.create("toto@foo.bar", "ABCDEF01234", "xxx_toto_xxx")
+            self.assertRaises(Exception, player_authentifiation.nick_to_player_id, ("yyy_toto_xxx"))
+
+
+    if __name__ == "__main__":
+        unittest.main()
