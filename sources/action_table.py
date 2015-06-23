@@ -4,6 +4,14 @@ import heapq
 from uuid import uuid4
 from collections import namedtuple
 import time
+from enum import Enum
+
+class ActionType(Enum):
+    building_unit = 1
+    building_defense = 2
+    building_tech = 3
+    spying = 4
+    attacking = 5
 
 Action = namedtuple("Action", ["id", "start", "stop", "player_id_source", "player_id_dest", "type", "args"])
 
