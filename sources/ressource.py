@@ -34,6 +34,9 @@ class Ressource:
         self.update()
         return self._value
 
+    def get_delta(self):
+        return self._delta
+
     def set_delta(self, delta):
         self.update()
         delta = int(delta)

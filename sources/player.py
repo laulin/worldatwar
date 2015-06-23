@@ -35,6 +35,9 @@ class Player:
         # check a min tech level
         return  self._tech.check_min(tech)
 
+    def get_ressources(self):
+        return zip(self._ressources.get_value(), self._ressources.get_delta())
+
     def get_units(self):
         return self._units.get()
 

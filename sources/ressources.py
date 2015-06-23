@@ -17,6 +17,10 @@ class Ressources:
         output = [ressource.get_value() for ressource in self._ressources]
         return output
 
+    def get_delta(self):
+        output = [ressource.get_delta() for ressource in self._ressources]
+        return output
+
     def set_delta(self, delta):
         [ressource.set_delta(delta[i]) for i,ressource in enumerate(self._ressources)]
 
