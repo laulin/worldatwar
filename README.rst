@@ -21,7 +21,7 @@ in-game :
         - get units available
         - get defenses available
         - get tech levels
-        - get events (attacking/defending, building)
+        - get actions (attacking/defending, building)
         - get messages list
         - get one message
 
