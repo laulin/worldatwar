@@ -1,15 +1,18 @@
 import unittest
 import unittest.mock as mock
 import time
+import logging
 
 from authentification import PlayerAuthentification
 from player_table import PlayerTable
 from action_table import ActionTable
+from action_table import ActionType
 
 class Engine:
     def __init__(self, configuration):
         # constructor
         self._configuration = configuration
+        self._log = logging.getLogger()
 
         self._authentification = PlayerAuthentification()
         self._players = PlayerTable(configuration)
@@ -64,16 +67,78 @@ class Engine:
 
         return player.get_tech()
 
+
+    def _update_actions_building_unit(self, action):
+        pass
+
+    def _update_actions_building_defense(self, action):
+        pass
+
+    def _update_actions_building_tech(self, action):
+        pass
+
+    def _update_actions_spying(self, action):
+        pass
+
+    def _update_actions_attacking(self, action):
+        pass
+
+    def update_actions(self):
+        """
+        This function pops all timeouted action and do action
+        """
+        action_look_up = dict()
+        action_look_up[ActionType.building_unit] = self._update_actions_building_unit
+        action_look_up[ActionType.building_defense] = self._update_actions_building_defense
+        action_look_up[ActionType.building_tech] = self._update_actions_building_tech
+        action_look_up[ActionType.spying] = self._update_actions_spying
+        action_look_up[ActionType.attacking] = self._update_actions_attacking
+
+        # this function update the action table and report effect to players
+        while self._actions.is_action_timeout():
+            action = self._actions.pop_timeouted_action()
+            callback = action_look_up.get(action.type, None)
+
+            if not callback:
+                self._log.warning("type {} is not valid".format(action.type))
+                continue
+
+            callback(action)
+
     def get_actions(self, player_token, filter=None):
         # using a player_token, it returns a list of action; if filter is a tuple,
         # it only keep action with the same type
-        raise NotImplemented()
+        self.update_actions()
+        player_id = self._authentification.player_token_to_player_id(player_token)
+        return self._actions.get_player_actions(player_id)
+
+    def get_tech_needed(self, branch, obj):
+        return self._configuration[branch][obj].get("tech", dict())
+
+    def get_missing_tech(self, player, branch, obj):
+        needed_tech = self.needed_tech(branch, obj)
+        missing_tech = player.check_min_tech(needed_tech)
+
+        return missing_tech
+
+    def get_cost(self, branch, obj):
+        return self._configuration[branch][obj].get("tech", dict())
 
     # actions
     # things have to be payed at the ordering
     def build_unit(self, player_token, unit):
         # add a unit to the factory list
-        raise NotImplemented()
+        player_id = self._authentification.player_token_to_player_id(player_token)
+        player = self._get_player(player_token)
+
+
+        missing_tech = self.get_missing_tech(player, "units", unit)
+        if missing_tech:
+            raise Exception("missing technologie : {}".format(missing_tech))
+
+        if not player.check_min_ressources()
+
+
 
     def build_defense(self, player_token, defense):
         # add a defense to the factory list
