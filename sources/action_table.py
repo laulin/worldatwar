@@ -87,6 +87,7 @@ class ActionTable:
 
         return output
 
+
     def pop_timeouted_action(self):
         """
         return the oldest action that is finished
@@ -94,8 +95,19 @@ class ActionTable:
         if not self.is_action_timeout():
             raise Exception("no action finished")
 
+        # got the action
         timeout, action_id = heapq.heappop(self._stop_time_index)
         action = self._main_table[action_id]
+
+        # and remove from the table
+        del self._main_table[action_id]
+
+        self._player_index.get(action.player_id_source, set()).discard(action_id)
+
+        if action.player_id_dest:
+            self._player_index.get(action.player_id_dest, set()).discard(action_id)
+
+        return action
 
 
 if __name__ == "__main__":
@@ -157,5 +169,18 @@ if __name__ == "__main__":
 
             output = table.get_player_actions("toto")
             self.assertEqual(2, len(output))
+
+        @mock.patch("__main__.uuid4")
+        @mock.patch("__main__.time")
+        def test_pop_timeouted_action(self, time_mock, uuid4_mock):
+            time_mock.time.return_value = 0
+            uuid4_mock.return_value = "xxxx-xxxx-xxxx-xxxx"
+
+            table = ActionTable()
+            table.add_action(10000, "toto", "titi", 1, None)
+            time_mock.time.return_value = 100
+
+            action = table.pop_timeouted_action()
+            self.assertEqual(Action("xxxx-xxxx-xxxx-xxxx", 0, 10000, "toto", "titi", 1, None), action)
 
     unittest.main()
